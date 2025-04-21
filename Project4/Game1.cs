@@ -15,6 +15,7 @@ namespace Project4
     }
     public class Game1 : Game
     {
+        public GameWindow Window { get; }
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         StatOfScreen StatOfScreen = StatOfScreen.ThrstMenuScreen;
@@ -44,6 +45,7 @@ namespace Project4
             BulletPlayer.Texture2D = Content.Load<Texture2D>("BulletTexture");
             Player.Texture2D = Content.Load<Texture2D>("Player");
             Screen.Font = Content.Load<SpriteFont>("SpriteFont1");
+            Zombie.Texture2D = Content.Load<Texture2D>("ZombieDefault");
             GameScreen.Init(_spriteBatch, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
         }
 
@@ -84,7 +86,7 @@ namespace Project4
                 Exit();
             Screen.Update();
             //Bullet.Update();
-            GameScreen.Update();
+            GameScreen.Update(gameTime);
             base.Update(gameTime);
         }
 
