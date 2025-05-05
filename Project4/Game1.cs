@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 
 namespace Project4
@@ -21,11 +23,8 @@ namespace Project4
         StatOfScreen StatOfScreen = StatOfScreen.ThrstMenuScreen;
 
         private Screen menuScreen;
-        
         private MenuPause menuPause;
-        
         private Rezalt rezaltScreen;
-        
         private KeyboardState previousKeyState;
 
         public Game1()
@@ -43,7 +42,7 @@ namespace Project4
             base.Initialize();
         }
 
-                protected override void LoadContent()
+        protected override void LoadContent()
         {
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -51,8 +50,10 @@ namespace Project4
             Screen.PlayTexture = Content.Load<Texture2D>("Play1");
             Screen.UnderName = Content.Load<Texture2D>("UnderName");
             Screen.AchievementsTexture = Content.Load<Texture2D>("Achievements1");
+            Screen.BackgroundSong = Content.Load<Song>("BadGuy");
             KitHealth.Texture2D = Content.Load<Texture2D>("Kit");
             GameScreen.BackGround = Content.Load<Texture2D>("BackGroundGame");
+            GameScreen.BackgroundMusic = Content.Load<Song>("H.A.T.E");
             BulletPlayer.Texture2D = Content.Load<Texture2D>("BulletTexture");
             Player.NormalPlayerTexture = Content.Load<Texture2D>("PlayerNormal");
             Zombie.BaseTexture = Content.Load<Texture2D>("ZombieDefault");
@@ -72,10 +73,10 @@ namespace Project4
             Rezalt.Back = Content.Load<Texture2D>("Back");
             Rezalt.GameOver = Content.Load<Texture2D>("GameOver");
             Rezalt.RezaltGame = Content.Load<Texture2D>("Rezalt");
-            MenuPause.BackGraund = Content.Load<Texture2D>("WhiteFlash"); 
-            MenuPause.Monitor = Content.Load<Texture2D>("Monitor Pause");       
-            MenuPause.BackToGame = Content.Load<Texture2D>("Continue");     
-            MenuPause.BackToMenu = Content.Load<Texture2D>("BackToMenu");     
+            MenuPause.BackGraund = Content.Load<Texture2D>("WhiteFlash");
+            MenuPause.Monitor = Content.Load<Texture2D>("Monitor Pause");
+            MenuPause.BackToGame = Content.Load<Texture2D>("Continue");
+            MenuPause.BackToMenu = Content.Load<Texture2D>("BackToMenu");
 
             GameScreen.Init(spriteBatch, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
 
@@ -86,64 +87,77 @@ namespace Project4
             menuScreen.PlayClicked += MenuScreen_PlayClicked;
             menuScreen.AchievementsClicked += MenuScreen_AchievementsClicked;
             menuPause = new MenuPause(screenWidth, screenHeight);
-
             menuPause.ResumeGameClicked += MenuPause_ResumeGameClicked;
             menuPause.BackToMenuClicked += MenuPause_BackToMenuClicked;
-
             rezaltScreen = new Rezalt(screenWidth, screenHeight);
             rezaltScreen.BackToMenuClicked += RezaltScreen_BackToMenuClicked;
+
+            SetBackgroundMusic(StatOfScreen);
+        }
+
+        private void SetBackgroundMusic(StatOfScreen state)
+        {
+            MediaPlayer.IsRepeating = true;
+            MediaPlayer.Volume = 0.5f;
+            MediaPlayer.Stop();
+            if (state == StatOfScreen.ThrstMenuScreen)
+            {
+                MediaPlayer.Play(Screen.BackgroundSong);
+            }
+            else if (state == StatOfScreen.Game)
+            {
+                MediaPlayer.Play(GameScreen.BackgroundMusic);
+            }
         }
 
         private void MenuScreen_PlayClicked(object sender, EventArgs e)
         {
-            StatOfScreen = StatOfScreen.Game; 
+            StatOfScreen = StatOfScreen.Game;
+            SetBackgroundMusic(StatOfScreen);
         }
 
         private void MenuScreen_AchievementsClicked(object sender, EventArgs e)
         {
-            
-            Console.WriteLine("Achievements button clicked! (Handled in Game1)"); 
+            Console.WriteLine("Achievements button clicked! (Handled in Game1)");
         }
 
         private void MenuPause_ResumeGameClicked(object sender, EventArgs e)
         {
-            StatOfScreen = StatOfScreen.Game; 
+            StatOfScreen = StatOfScreen.Game;
+            SetBackgroundMusic(StatOfScreen);
         }
 
         private void MenuPause_BackToMenuClicked(object sender, EventArgs e)
         {
-            StatOfScreen = StatOfScreen.ThrstMenuScreen; 
-            
-            GameScreen.Init(spriteBatch, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight); 
+            StatOfScreen = StatOfScreen.ThrstMenuScreen;
+            SetBackgroundMusic(StatOfScreen);
+            GameScreen.Init(spriteBatch, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
         }
 
         private void RezaltScreen_BackToMenuClicked(object sender, EventArgs e)
         {
-            StatOfScreen = StatOfScreen.ThrstMenuScreen; 
-            
-            GameScreen.Init(spriteBatch, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight); 
+            StatOfScreen = StatOfScreen.ThrstMenuScreen;
+            SetBackgroundMusic(StatOfScreen);
+            GameScreen.Init(spriteBatch, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
         }
 
         protected override void Update(GameTime gameTime)
         {
             var keyState = Keyboard.GetState();
             var mouseState = Mouse.GetState();
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed) 
-                 Exit();
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
+                Exit();
             switch (StatOfScreen)
             {
                 case StatOfScreen.ThrstMenuScreen:
                     menuScreen.Update(mouseState);
                     if (keyState.IsKeyDown(Keys.Escape))
-                         Exit();
+                        Exit();
                     break;
                 case StatOfScreen.Game:
-                    
-                     if (keyState.IsKeyDown(Keys.Escape) && !previousKeyState.IsKeyDown(Keys.Escape)) 
-                    {
+                    if (keyState.IsKeyDown(Keys.Escape) && !previousKeyState.IsKeyDown(Keys.Escape))
                         StatOfScreen = StatOfScreen.Pause;
-                    }
-                    else 
+                    else
                     {
                         GameScreen.Update(gameTime);
                         if (mouseState.LeftButton == ButtonState.Pressed) GameScreen.PlayerFire();
@@ -157,44 +171,39 @@ namespace Project4
                         }
                     }
                     break;
-                case StatOfScreen.Pause: 
-                      if (keyState.IsKeyDown(Keys.Escape) && !previousKeyState.IsKeyDown(Keys.Escape)) 
-                     {
-                         StatOfScreen = StatOfScreen.Game; 
-                     }
-                     else 
-                     {
-                         menuPause.Update(mouseState); 
-                     }
-                     break;
-                case StatOfScreen.EndOfGame: 
+                case StatOfScreen.Pause:
+                    if (keyState.IsKeyDown(Keys.Escape) && !previousKeyState.IsKeyDown(Keys.Escape))
+                        StatOfScreen = StatOfScreen.Game;
+                    else
+                        menuPause.Update(mouseState);
+                    break;
+                case StatOfScreen.EndOfGame:
                     rezaltScreen.Update(mouseState);
                     break;
             }
-            previousKeyState = keyState; 
+            previousKeyState = keyState;
             base.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
         {
-
-             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend); 
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend);
             switch (StatOfScreen)
             {
                 case StatOfScreen.ThrstMenuScreen:
-                    GraphicsDevice.Clear(Color.CornflowerBlue); 
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
                     menuScreen.Draw(spriteBatch);
                     break;
                 case StatOfScreen.Game:
-                    GraphicsDevice.Clear(Color.Black); 
+                    GraphicsDevice.Clear(Color.Black);
                     GameScreen.Draw(spriteBatch);
                     break;
-                case StatOfScreen.Pause: 
-                     GameScreen.Draw(spriteBatch);
-                     menuPause.Draw(spriteBatch, GraphicsDevice);
-                     break;
-                case StatOfScreen.EndOfGame: 
-                    GameScreen.Draw(spriteBatch); 
+                case StatOfScreen.Pause:
+                    GameScreen.Draw(spriteBatch);
+                    menuPause.Draw(spriteBatch, GraphicsDevice);
+                    break;
+                case StatOfScreen.EndOfGame:
+                    GameScreen.Draw(spriteBatch);
                     rezaltScreen.Draw(spriteBatch, GraphicsDevice);
                     break;
             }

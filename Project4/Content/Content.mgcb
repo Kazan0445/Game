@@ -37,6 +37,12 @@
 /processorParam:TextureFormat=Color
 /build:Achievements1.png
 
+#begin Annisokay & Any Given Day - H.A.T.E [Custom Instrumental].mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Annisokay & Any Given Day - H.A.T.E [Custom Instrumental].mp3;H.A.T.E.mp3
+
 #begin Back.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -180,6 +186,12 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Default.png;BackGroundMenu.png
+
+#begin Falling In Reverse Bad Guy Instrumental (1).mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Falling In Reverse Bad Guy Instrumental (1).mp3;BadGuy.mp3
 
 #begin File.spritefont
 /importer:FontDescriptionImporter

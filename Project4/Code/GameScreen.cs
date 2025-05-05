@@ -1,9 +1,11 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Collections.Generic;
 using static System.Formats.Asn1.AsnWriter;
+using Microsoft.Xna.Framework.Media;
 
 namespace Project4
 {
@@ -14,6 +16,8 @@ namespace Project4
         public static SpriteBatch SpriteBatch { get; set; }
         public static Texture2D BackGround { get; set; }
         public static Player Player { get; set; }
+        public static SoundEffect GameActionSound { get; set; }
+        public static Song BackgroundMusic { get; set; }
         static Color color;
         static List<BulletPlayer> bulletPlayer = new List<BulletPlayer>();
         static List<Zombie> zombies = new List<Zombie>();
@@ -75,6 +79,24 @@ namespace Project4
             }
         }
 
+        public static void PlayBackgroundMusic()
+        {
+            if (BackgroundMusic != null)
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Volume = 0.5f;
+                MediaPlayer.Play(BackgroundMusic);
+            }
+        }
+
+        public static void StopBackgroundMusic()
+        {
+            if (MediaPlayer.State == MediaState.Playing)
+            {
+                MediaPlayer.Stop();
+            }
+        }
+
         static public void Init(SpriteBatch SpriteBatch, int Width, int Height)
         {
             GameScreen.Width = Width;
@@ -94,6 +116,10 @@ namespace Project4
             playerFireRate = TimeSpan.FromMilliseconds(500);
             BulletPlayer.SpeedMultiplier = 1.2f;
             Upgrade.SlowModeActive = false;
+
+            Level.ResetLevel();
+
+            PlayBackgroundMusic();
         }
 
         static public void Draw(SpriteBatch spriteBatch)
@@ -317,6 +343,11 @@ namespace Project4
             if (Upgrade.SlowModeActive)
             {
                 Upgrade.ProcessSelection();
+            }
+
+            if (Keyboard.GetState().IsKeyDown(Keys.Space))
+            {
+                GameActionSound?.Play();
             }
         }
 
@@ -745,6 +776,13 @@ namespace Project4
         private static int currentExperience = 0;
         private static int experienceToLevelUp = 300;
         private static int currentLevel = 1;
+
+        public static void ResetLevel()
+        {
+            currentExperience = 0;
+            experienceToLevelUp = 300;
+            currentLevel = 1;
+        }
 
         public static void AddExperience(int exp)
         {

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Collections.Generic;
 
@@ -12,14 +13,22 @@ namespace Project4
         public static Texture2D PlayTexture { get; set; }
         public static Texture2D AchievementsTexture { get; set; }
         public static Texture2D UnderName { get; set; }
-        static int timeCounter = 0;
-        static Color color;
         public static SpriteFont Font { get; set; }
-                
+
+        private static Song backgroundSong;
+        public static Song BackgroundSong
+        {
+            get => backgroundSong;
+            set => backgroundSong = value;
+        }
+
         private List<Button> buttons = new();
 
         public event EventHandler PlayClicked;
         public event EventHandler AchievementsClicked;
+
+        static int timeCounter = 0;
+        static Color color;
 
         public Screen(int screenWidth, int screenHeight)
         {
@@ -36,10 +45,18 @@ namespace Project4
             Button achieveButton = new Button(AchievementsTexture, achieveButtonPos, Color.White, buttonScale);
             achieveButton.Click += OnAchievementsClicked;
             buttons.Add(achieveButton);
+
+            if (backgroundSong != null && MediaPlayer.State != MediaState.Playing)
+            {
+                MediaPlayer.IsRepeating = true;
+                MediaPlayer.Volume = 0.1f;
+                MediaPlayer.Play(backgroundSong);
+            }
         }
 
         private void OnPlayClicked(object sender, EventArgs e)
         {
+            MediaPlayer.Stop();
             PlayClicked?.Invoke(this, EventArgs.Empty);
         }
 
@@ -50,8 +67,8 @@ namespace Project4
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            spriteBatch.Draw(BackGraund, new Rectangle(0,0,1920,1080),color);
-            spriteBatch.Draw(UnderName, new Rectangle(960 - UnderName.Width/2,  UnderName.Height/2, UnderName.Width, UnderName.Height), color);
+            spriteBatch.Draw(BackGraund, new Rectangle(0, 0, 1920, 1080), color);
+            spriteBatch.Draw(UnderName, new Rectangle(960 - UnderName.Width / 2, UnderName.Height / 2, UnderName.Width, UnderName.Height), color);
             spriteBatch.DrawString(Font, "Zombie Rush", new Vector2(960 - (int)(UnderName.Width / 2.6), (int)(UnderName.Height / 1.5)), Color.DarkRed);
 
             foreach (var btn in buttons)
@@ -64,9 +81,9 @@ namespace Project4
         {
             if (timeCounter < 255)
             {
-                 color = Color.FromNonPremultiplied(255, 255, 255, timeCounter);
-                 timeCounter += 2;
-                 if (timeCounter > 255) timeCounter = 255;
+                color = Color.FromNonPremultiplied(255, 255, 255, timeCounter);
+                timeCounter += 2;
+                if (timeCounter > 255) timeCounter = 255;
             }
             else
             {
